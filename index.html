@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>微信H5下载文件处理演示</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/daisyui/4.12.10/full.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .wechat-mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            display: none;
+        }
+        
+        .mask-content {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 280px;
+            text-align: center;
+        }
+        
+        .arrow-icon {
+            position: absolute;
+            top: -10px;
+            right: 30px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 10px solid white;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- 标题区域 -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                <i class="fab fa-weixin text-green-500 mr-2"></i>
+                微信H5下载文件处理演示
+            </h1>
+            <p class="text-gray-600">解决微信内置浏览器无法直接下载文件的问题</p>
+        </div>
+
+        <!-- 环境检测卡片 -->
+        <div class="card bg-white shadow-lg mb-6">
+            <div class="card-body">
+                <h2 class="card-title">
+                    <i class="fas fa-search text-blue-500"></i>
+                    当前环境检测
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700 w-20">系统:</span>
+                        <span id="systemInfo" class="badge badge-primary">检测中...</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700 w-20">浏览器:</span>
+                        <span id="browserInfo" class="badge badge-secondary">检测中...</span>
+                    </div>
+                </div>
+                <div class="mt-4 p-3 bg-gray-100 rounded-lg">
+                    <p id="envStatus" class="text-center font-medium">检测中...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 解决方案展示 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- 方法一 -->
+            <div class="card bg-white shadow-lg">
+                <div class="card-body">
+                    <h2 class="card-title text-red-600">
+                        <span class="badge badge-outline">方法一</span>
+                        遮罩提示
+                    </h2>
+                    <div class="space-y-3">
+                        <div>
+                            <h4 class="font-semibold text-gray-800">实现原理：</h4>
+                            <p class="text-sm text-gray-600">检测到微信环境后，显示遮罩层提示用户在浏览器中打开链接</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-green-600">优点：</h4>
+                            <ul class="text-sm text-gray-600 list-disc list-inside">
+                                <li>实现简单，兼容性好</li>
+                                <li>不受微信版本更新影响</li>
+                                <li>用户操作明确</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-red-600">缺点：</h4>
+                            <ul class="text-sm text-gray-600 list-disc list-inside">
+                                <li>用户体验不够友好</li>
+                                <li>操作步骤较多</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-actions justify-end mt-4">
+                        <button onclick="showMethod1()" class="btn btn-primary btn-sm">
+                            <i class="fas fa-eye mr-1"></i>
+                            预览方法一
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 方法二 -->
+            <div class="card bg-white shadow-lg">
+                <div class="card-body">
+                    <h2 class="card-title text-blue-600">
+                        <span class="badge badge-outline">方法二</span>
+                        自动跳转
+                    </h2>
+                    <div class="space-y-3">
+                        <div>
+                            <h4 class="font-semibold text-gray-800">实现原理：</h4>
+                            <p class="text-sm text-gray-600">根据设备类型自动选择最佳跳转方式，直接调起外部浏览器</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-green-600">优点：</h4>
+                            <ul class="text-sm text-gray-600 list-disc list-inside">
+                                <li>用户体验更友好</li>
+                                <li>操作步骤简化</li>
+                                <li>自动适配设备</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-red-600">缺点：</h4>
+                            <ul class="text-sm text-gray-600 list-disc list-inside">
+                                <li>实现相对复杂</li>
+                                <li>需要处理不同设备兼容性</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-actions justify-end mt-4">
+                        <button onclick="testMethod2()" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-rocket mr-1"></i>
+                            测试方法二
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 文件下载测试 -->
+        <div class="card bg-white shadow-lg mb-6">
+            <div class="card-body">
+                <h2 class="card-title">
+                    <i class="fas fa-download text-green-500"></i>
+                    测试文件下载
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                    <div class="text-center">
+                        <p class="text-sm text-gray-600 mb-2">测试PDF文档</p>
+                        <button onclick="downloadFile('sample.pdf', 'application/pdf')" class="btn btn-outline btn-primary btn-sm">
+                            <i class="fas fa-file-pdf mr-1"></i>
+                            下载PDF
+                        </button>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-600 mb-2">测试图片文件</p>
+                        <button onclick="downloadFile('sample.jpg', 'image/jpeg')" class="btn btn-outline btn-secondary btn-sm">
+                            <i class="fas fa-file-image mr-1"></i>
+                            下载图片
+                        </button>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-600 mb-2">测试压缩包</p>
+                        <button onclick="downloadFile('sample.zip', 'application/zip')" class="btn btn-outline btn-accent btn-sm">
+                            <i class="fas fa-file-archive mr-1"></i>
+                            下载ZIP
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 技术实现说明 -->
+        <div class="card bg-white shadow-lg">
+            <div class="card-body">
+                <h2 class="card-title">
+                    <i class="fas fa-code text-purple-500"></i>
+                    技术实现说明
+                </h2>
+                
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="font-semibold text-gray-800 mb-2">用户代理检测</h3>
+                        <div class="bg-gray-900 text-green-400 p-4 rounded-lg text-sm font-mono overflow-x-auto">
+// 判断浏览器类型<br>
+var UA = navigator.userAgent;<br>
+var isWeixin = /MicroMessenger/gi.test(UA);<br>
+var isAndroid = /android|adr/gi.test(UA);<br>
+var isIOS = /iphone|ipod|ipad/gi.test(UA);
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-semibold text-gray-800 mb-2">跳转实现</h3>
+                        <div class="bg-gray-900 text-green-400 p-4 rounded-lg text-sm font-mono overflow-x-auto">
+// Android使用iframe<br>
+var iframe = document.createElement("iframe");<br>
+iframe.src = filePath;<br>
+document.body.appendChild(iframe);<br><br>
+// iOS使用a标签点击<br>
+var link = document.getElementById('BtnClick');<br>
+link.href = filePath;<br>
+link.click();
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 遮罩层 -->
+    <div id="wechatMask" class="wechat-mask">
+        <div class="mask-content">
+            <div class="arrow-icon"></div>
+            <div class="text-center">
+                <i class="fas fa-hand-pointer text-2xl text-blue-500 mb-2"></i>
+                <p class="font-semibold text-gray-800 mb-2">操作提示</p>
+                <p class="text-sm text-gray-600 mb-3">请点击右上角菜单</p>
+                <p class="text-sm text-gray-600 mb-3">选择"在浏览器中打开"</p>
+                <p class="text-sm text-gray-600">即可正常下载文件</p>
+                <button onclick="hideMask()" class="btn btn-primary btn-sm mt-4">
+                    继续访问
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 环境检测
+        function detectEnvironment() {
+            var UA = navigator.userAgent;
+            var isWeixin = /MicroMessenger/gi.test(UA);
+            var isAndroid = /android|adr/gi.test(UA);
+            var isIOS = /iphone|ipod|ipad/gi.test(UA);
+            var isPC = !isAndroid && !isIOS;
+
+            var systemInfo = isPC ? 'PC' : (isAndroid ? 'Android' : 'iOS');
+            var browserInfo = isWeixin ? '微信' : '其他';
+            var envStatus = isWeixin ? '微信环境' : '非微信环境';
+
+            document.getElementById('systemInfo').textContent = systemInfo;
+            document.getElementById('browserInfo').textContent = browserInfo;
+            document.getElementById('envStatus').textContent = envStatus;
+
+            return { isWeixin, isAndroid, isIOS, isPC };
+        }
+
+        // 显示遮罩方法
+        function showMethod1() {
+            document.getElementById('wechatMask').style.display = 'block';
+        }
+
+        // 隐藏遮罩
+        function hideMask() {
+            document.getElementById('wechatMask').style.display = 'none';
+        }
+
+        // 测试方法二
+        function testMethod2() {
+            var env = detectEnvironment();
+            if (env.isWeixin) {
+                // 创建临时下载链接
+                var link = document.createElement('a');
+                link.href = 'https://via.placeholder.com/300x200.jpg';
+                link.download = 'test.jpg';
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                
+                if (env.isAndroid) {
+                    // Android使用iframe方式
+                    var iframe = document.createElement('iframe');
+                    iframe.src = link.href;
+                    iframe.style.display = 'none';
+                    document.body.appendChild(iframe);
+                    setTimeout(() => {
+                        document.body.removeChild(iframe);
+                    }, 1000);
+                } else if (env.isIOS) {
+                    // iOS使用a标签点击
+                    link.click();
+                }
+                
+                document.body.removeChild(link);
+                alert('方法二测试：已尝试自动跳转下载');
+            } else {
+                alert('当前非微信环境，方法二无需使用');
+            }
+        }
+
+        // 文件下载测试
+        function downloadFile(filename, mimeType) {
+            var env = detectEnvironment();
+            if (env.isWeixin) {
+                showMethod1();
+                return;
+            }
+
+            // 非微信环境，直接下载
+            var link = document.createElement('a');
+            link.href = 'https://via.placeholder.com/300x200.jpg';
+            link.download = filename;
+            link.click();
+            
+            alert('文件下载已启动：' + filename);
+        }
+
+        // 页面加载完成后检测环境
+        window.onload = function() {
+            detectEnvironment();
+        };
+
+        // 点击遮罩背景关闭
+        document.getElementById('wechatMask').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideMask();
+            }
+        });
+    </script>
+</body>
+</html>
